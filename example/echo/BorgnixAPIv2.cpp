@@ -6,6 +6,7 @@
 
 #include <avr/wdt.h>
 #include <Arduino.h>
+#include <MemoryFree.h>
 #include <SoftwareSerial.h>
 #include <espduino.h>
 #include <mqtt.h>
@@ -156,6 +157,8 @@ void mqttData(void* response)
 
 void BorgnixClient::BorgDevSend(char* payload)
 {
+  showFreeMemory();
+  
   mqtt->publish(BorgnixClient::outTopic, payload);
 }
 
@@ -172,19 +175,46 @@ void BorgnixClient::BorgSimpleSend(String dataType, String payload)
   char buf[len];
   buf[len - 1] = '\0';
   data.toCharArray(buf, len);
+
+  showFreeMemory();
   
   mqtt->publish(BorgnixClient::outTopic, buf);
+}
+
+void BorgnixClient::BorgTopicSend(String dataType, String payload)
+{
+  String outTopic = BorgnixClient::outTopic;
+  outTopic += "/";
+  outTopic += dataType;
+  int len = outTopic.length() + 1;
+  char topicBuf[len];
+  topicBuf[len - 1] = '\0';
+  outTopic.toCharArray(topicBuf, len);
+  
+  unsigned long ts = millis();
+  String data = String(ts);
+  data = "ts=" + data;
+  data += ",data=";
+  data += payload;
+  len = data.length() + 1;
+  char buf[len];
+  buf[len - 1] = '\0';
+  data.toCharArray(buf, len);
+
+  showFreeMemory();
+  
+  mqtt->publish(topicBuf, buf);
 }
 
 boolean BorgnixClient::BorgDevConnect(BorgDevCB borgDevCb)
 {
   BorgnixClient::borgDevCb = borgDevCb;
   
-  String inTopicString = String('/');
+  String inTopicString = String(TOPIC_PREFIX);
   inTopicString += BorgnixClient::uuid;
   inTopicString += "/in";
 
-  String outTopicString = String('/');
+  String outTopicString = String(TOPIC_PREFIX);
   outTopicString += BorgnixClient::uuid;
   outTopicString += "/out";
 
@@ -234,6 +264,12 @@ boolean BorgnixClient::BorgDevConnect(BorgDevCB borgDevCb)
 void BorgnixClient::disconnect()
 {
   mqtt->disconnect();
+}
+
+void BorgnixClient::showFreeMemory()
+{
+  debugPort->print(F("RAM: "));
+  debugPort->println(freeMemory(), DEC);
 }
 
 void BorgnixClient::process()

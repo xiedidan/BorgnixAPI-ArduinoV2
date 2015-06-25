@@ -8,7 +8,12 @@
 #define BORGNIX_API_V2_H
 
 #define SERIAL_BAUD 19200
-#define MAX_JOB_COUNT 32
+
+#ifndef MAX_JOB_COUNT
+#define MAX_JOB_COUNT 8
+#endif
+
+#define TOPIC_PREFIX "/devices/"
 
 extern void wifiCb(void* response);
 extern void mqttConnected(void* response);
@@ -43,10 +48,14 @@ class BorgnixClient
   boolean BorgDevConnect(BorgDevCB borgDevCb);
   void BorgDevSend(char* payload);
   void BorgSimpleSend(String dataType, String payload);
+  void BorgTopicSend(String dataType, String payload);
+  
   void process();
   
   int setInterval(BorgIntervalCB callback, int ms);
   void clearInterval(int intervalNo);
+
+  void showFreeMemory();
   
   static char* host;
   static uint16_t port;
