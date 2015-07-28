@@ -10,13 +10,11 @@
 #include <SoftwareSerial.h>
 #include <espduino.h>
 #include <mqtt.h>
-#include <WifiLink.h>
 #include "BorgnixAPIv2.h"
 
 SoftwareSerial* debugPort;
 ESP* esp;
 MQTT* mqtt;
-WifiLink* wifiLink;
 boolean wifiConnectFlag;
 boolean mqttConnectFlag;
 
@@ -35,7 +33,6 @@ BorgnixClient::BorgnixClient(char* host, uint16_t port, char* uuid, char* token,
   debugPort = new SoftwareSerial(7, 8); // RX, TX
   esp = new ESP(&Serial, debugPort, 4);
   mqtt = new MQTT(esp);
-  wifiLink = new WifiLink(esp);
   
   BorgnixClient::host = host;
   BorgnixClient::port = port;
@@ -56,8 +53,6 @@ BorgnixClient::BorgnixClient(char* host, uint16_t port, char* uuid, char* token,
   wdt_enable(WDTO_8S);
   wdt_reset();
   this->setInterval((BorgIntervalCB)feedWatchdog, 500);
-
-  wifiLink->setLed(0);
 }
 
 BorgnixClient::~BorgnixClient()
@@ -100,30 +95,6 @@ void BorgnixClient::clearInterval(int intervalNo)
     (jobList[intervalNo])->switchOn = false;
 }
 
-int BorgnixClient::setTimeout(BorgIntervalCB callback, int ms, int lifeCycle)
-{
-  Interval* item;
-  int i = 0;
-  for (i = 0; i < MAX_JOB_COUNT; i++)
-  {
-    if ((jobList[i])->switchOn == false)
-      break;
-  }
-  
-  if (i == MAX_JOB_COUNT - 1 && (jobList[i])->switchOn == true)
-    return -1;
-  
-  item = jobList[i];
-  item->callback = callback;
-  item->interval = ms;
-  item->lastMilli = millis();
-  item->switchOn = true;
-  item->lifeCycle = lifeCycle;
-  item->age = 0;
-  
-  return i;
-}
-
 void feedWatchdog()
 {
   wdt_reset();
@@ -157,8 +128,7 @@ void mqttConnected(void* response)
   mqttConnectFlag = true;
 
   // subscribe dev topic
-  mqtt->subscribe(BorgnixClient::inTopic);
-  wifiLink->setLed(1);
+  mqtt->subscribe(BorgnixClient::outTopic);
 }
 
 void mqttPublished(void* response)
@@ -168,7 +138,7 @@ void mqttPublished(void* response)
 
 void mqttDisconnected(void* response)
 {
-  wifiLink->setLed(0);
+
 }
 
 void mqttData(void* response)
@@ -189,7 +159,7 @@ void BorgnixClient::BorgDevSend(char* payload)
 {
   showFreeMemory();
   
-  mqtt->publish(BorgnixClient::outTopic, payload);
+  mqtt->publish(BorgnixClient::inTopic, payload);
 }
 
 void BorgnixClient::BorgSimpleSend(String dataType, String payload)
@@ -208,18 +178,18 @@ void BorgnixClient::BorgSimpleSend(String dataType, String payload)
 
   showFreeMemory();
   
-  mqtt->publish(BorgnixClient::outTopic, buf);
+  mqtt->publish(BorgnixClient::inTopic, buf);
 }
 
 void BorgnixClient::BorgTopicSend(String dataType, String payload)
 {
-  String outTopic = BorgnixClient::outTopic;
-  outTopic += "/";
-  outTopic += dataType;
-  int len = outTopic.length() + 1;
+  String inTopic = BorgnixClient::inTopic;
+  inTopic += "/";
+  inTopic += dataType;
+  int len = inTopic.length() + 1;
   char topicBuf[len];
   topicBuf[len - 1] = '\0';
-  outTopic.toCharArray(topicBuf, len);
+  inTopic.toCharArray(topicBuf, len);
   
   unsigned long ts = millis();
   String data = String(ts);
@@ -315,29 +285,9 @@ void BorgnixClient::process()
         unsigned long now = millis();
         if (now - item->lastMilli > item->interval)
         {
-          // it's time
-          if (item->lifeCycle == -1)
-          {
-            BorgIntervalCB callback = item->callback;
-            callback();
-            item->lastMilli = now;
-          }
-          else // it has limited lifeCycle
-          {
-            if (item->lifeCycle == item->age)
-            {
-              // it will die...
-              clearInterval(i);
-            }
-            else
-            {
-              // live on to die!
-              BorgIntervalCB callback = item->callback;
-              callback();
-              item->lastMilli = now;
-              item->age++;
-            }
-          }
+          BorgIntervalCB callback = item->callback;
+          callback();
+          item->lastMilli = now;
         } // if timeout
       } // if switchOn
     } // i loop

@@ -3,9 +3,25 @@
 #include <SoftwareSerial.h>
 #include <espduino.h>
 #include <mqtt.h>
+#include <WifiLink.h>
 #include "BorgnixAPIv2.h"
 
 BorgnixClient client("voyager.orientsoft.cn", 11883, "UUID", "TOKEN", "HiWiFi_orientsoft", "welcome1");
+int bFlag = 1;
+
+void buttonISR(void)
+{
+  if (bFlag == 0)
+  {
+    wifiLink->setLed(1);
+    bFlag = 1;
+  }
+  else
+  {
+    wifiLink->setLed(0);
+    bFlag = 0;
+  }
+}
 
 void borgDevCb(char* payload)
 {
@@ -23,6 +39,7 @@ void borgIntervalCb()
 }
 
 void setup() {
+  attachInterrupt(0, buttonISR, RISING);
   client.BorgDevConnect(borgDevCb);
   client.setInterval(borgIntervalCb, 10000);
 }

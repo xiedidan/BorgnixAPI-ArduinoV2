@@ -25,7 +25,6 @@ extern void feedWatchdog();
 extern SoftwareSerial* debugPort;
 extern ESP* esp;
 extern MQTT* mqtt;
-extern WifiLink* wifiLink;
 extern boolean wifiConnectFlag;
 extern boolean mqttConnectFlag;
 
@@ -37,8 +36,6 @@ typedef struct Interval_Item
   BorgIntervalCB callback;
   unsigned long interval;
   unsigned long lastMilli;
-  int lifeCycle;
-  int age;
   boolean switchOn;
 } Interval;
 
@@ -57,7 +54,6 @@ class BorgnixClient
   
   int setInterval(BorgIntervalCB callback, int ms);
   void clearInterval(int intervalNo);
-  int setTimeout(BorgIntervalCB callback, int ms, int lifeCycle);
 
   void showFreeMemory();
   
