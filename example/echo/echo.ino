@@ -38,10 +38,16 @@ void borgIntervalCb()
   // client.BorgTopicSend("myTopic", String(54321));
 }
 
+void borgTimeoutCb()
+{
+  debugPort->println(F("Hello Timeout!"));
+}
+
 void setup() {
   attachInterrupt(0, buttonISR, RISING);
   client.BorgDevConnect(borgDevCb);
   client.setInterval(borgIntervalCb, 10000);
+  client.setTimeout(borgTimeoutCb, 5000, 3);
 }
 
 void loop() {
