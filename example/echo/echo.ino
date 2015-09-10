@@ -4,7 +4,7 @@
 #include <espduino.h>
 #include <mqtt.h>
 #include <WifiLink.h>
-#include <BorgnixAPIv2.h>
+#include "BorgnixAPIv2.h"
 
 BorgnixClient client("voyager.orientsoft.cn", 11883, "UUID", "TOKEN", "HiWiFi_orientsoft", "welcome1");
 int bFlag = 1;

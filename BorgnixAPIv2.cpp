@@ -242,11 +242,11 @@ boolean BorgnixClient::BorgDevConnect(BorgDevCB borgDevCb)
   
   String inTopicString = String(TOPIC_PREFIX);
   inTopicString += BorgnixClient::uuid;
-  inTopicString += "/in";
+  inTopicString += "/out";
 
   String outTopicString = String(TOPIC_PREFIX);
   outTopicString += BorgnixClient::uuid;
-  outTopicString += "/out";
+  outTopicString += "/in";
 
   BorgnixClient::inTopic = (char*)malloc(inTopicString.length() + 1);
   BorgnixClient::inTopic[inTopicString.length()] = '\0';
@@ -294,6 +294,22 @@ boolean BorgnixClient::BorgDevConnect(BorgDevCB borgDevCb)
 void BorgnixClient::disconnect()
 {
   mqtt->disconnect();
+}
+
+void BorgnixClient::safeDelay(int ms)
+{
+  int count = ms / SAFE_DELAY_INTERVAL_MS;
+  int last = ms - count * SAFE_DELAY_INTERVAL_MS;
+  esp->process();
+  
+  for (int i = 0; i < count; i++)
+  {
+    delay(SAFE_DELAY_INTERVAL_MS);
+    esp->process();
+  }
+
+  delay(last);
+  esp->process();
 }
 
 void BorgnixClient::showFreeMemory()

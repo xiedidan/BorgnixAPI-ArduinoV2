@@ -9,6 +9,8 @@
 
 #define SERIAL_BAUD 19200
 
+#define SAFE_DELAY_INTERVAL_MS 1
+
 #ifndef MAX_JOB_COUNT
 #define MAX_JOB_COUNT 8
 #endif
@@ -59,6 +61,7 @@ class BorgnixClient
   void clearInterval(int intervalNo);
   int setTimeout(BorgIntervalCB callback, int ms, int lifeCycle);
 
+  void safeDelay(int ms);
   void showFreeMemory();
   
   static char* host;

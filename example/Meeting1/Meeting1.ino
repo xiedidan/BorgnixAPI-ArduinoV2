@@ -3,9 +3,10 @@
 #include <SoftwareSerial.h>
 #include <espduino.h>
 #include <mqtt.h>
+#include <WifiLink.h>
 #include <BorgnixAPIv2.h>
 
-BorgnixClient client("z.borgnix.com", 1883, "73cfab70-1bad-11e5-ac7b-997292151e1f", "f371acae698520342c222e94a6ffab17ed815562", "HiWiFi_orientsoft", "welcome1");
+BorgnixClient client("z.borgnix.com", 1883, "16799b30-4ae6-11e5-9137-45959ddc0973", "87e09d33665a0543d521a8a69c6233898a3c83d5", "HiWiFi_orientsoft", "welcome1");
 
 int lightStat = 0;
 
