@@ -44,6 +44,9 @@ Message: ts=12345678,type=YOUR_DATA_TYPE,payload=YOUR_PAYLOAD
 ```
 <hr>
 ###Job System
+BorgnixAPI provides a bundle of APIs to control its job system.  
+Job system automatically manages user and internal jobs.  
+**Some of the internal jobs couldn't be blocked, so user code (not only use job) should use safeDelay() instead of delay().**  
 ```javascript
 void process();
 ```
@@ -52,17 +55,26 @@ Parses and processes received MQTT raw data in internal buffer. Maintains MQTT c
 ```javascript
 int setInterval(BorgIntervalCB callback, int ms);
 ```
+Register periodic job. BorgnixAPI will automatically callback per interval.
+IntervalNo will be returned and could be stored for further uses.
 ```javascript
 void clearInterval(int intervalNo);
 ```
+Unregister periodic job with speicified intervalNo.  
 ```javascript
 int setTimeout(BorgIntervalCB callback, int ms, int lifeCycle);
 ```
+Register periodic job with limited call count.  
+If job is called [lifeCycle] times, it will be removed by job system.
 <hr>
 ###Tools
 ```javascript
 void safeDelay(int ms);
 ```
+An Arduino stock delay() wrapper.  
+Delay specified ms and ensure job system work properly.  
 ```javascript
 void showFreeMemory();
 ```
+Check run-time free memory.  
+Especially useful for ATMega328p based Arduinos.  
