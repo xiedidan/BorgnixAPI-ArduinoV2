@@ -5,11 +5,14 @@ Borgnix ESPShield is suggestted for fast & stable connection between Arduino and
   
 API  
 ---  
+######Constructor  
+-----------------
 ```javascript
 BorgnixClient(char* host, uint16_t port, char* uuid, char* token, char* wifiName, char* wifiPass);  
 ```
-Constructor  
-<hr>
+Setup for MQTT broker / MQTT verification / WIFI
+######Connect  
+-------------
 ```javascript
 boolean BorgDevConnect(BorgDevCB borgDevCb);  
 ```  
