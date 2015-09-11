@@ -9,12 +9,34 @@ API
 BorgnixClient(char* host, uint16_t port, char* uuid, char* token, char* wifiName, char* wifiPass);  
 ```
 Constructor  
+<hr>
 ```javascript
-boolean BorgDevConnect(BorgDevCB borgDevCb);
+boolean BorgDevConnect(BorgDevCB borgDevCb);  
+```  
+Connect to Borgnix.com through MQTT.  
+borgDevCb is provided by user, BorgnixAPI will callback when data arrives. Data parsing and handling should go to borgDevCb:  
+```javascript
+typedef void (*BorgDevCB)(char* payload);  
 ```
-  void BorgDevSend(char* payload);
-  void BorgSimpleSend(String dataType, String payload);
-  void BorgTopicSend(String dataType, String payload);
+<hr>
+```javascript
+void BorgDevSend(char* payload);  
+```
+Send plain text (payload) to Borgnix.com  
+<hr>
+```javascript
+void BorgSimpleSend(String dataType, String payload);  
+```
+BorgDevSend wrapper. BorgSimpleSend will format inputs and call BorgDevSend. eg.:  
+```javascript
+ts=12345678 type=YOUR_DATA_TYPE payload=YOUR_PAYLOAD  
+```
+ts(timestamp) is the result of millis() function.
+<hr>
+```javascript
+void BorgTopicSend(String dataType, String payload);
+```
+
   
   void process();
   
