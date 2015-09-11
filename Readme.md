@@ -5,14 +5,13 @@ Borgnix ESPShield is suggestted for fast & stable connection between Arduino and
   
 API  
 ---  
-######Constructor  
------------------
+###Constructor  
 ```javascript
 BorgnixClient(char* host, uint16_t port, char* uuid, char* token, char* wifiName, char* wifiPass);  
 ```
 Setup for MQTT broker / MQTT verification / WIFI
-######Connect  
--------------
+<hr>  
+###Connect  
 ```javascript
 boolean BorgDevConnect(BorgDevCB borgDevCb);  
 ```  
@@ -22,30 +21,48 @@ borgDevCb is provided by user, BorgnixAPI will callback when data arrives. Data 
 typedef void (*BorgDevCB)(char* payload);  
 ```
 <hr>
+###Senders
 ```javascript
 void BorgDevSend(char* payload);  
 ```
 Send plain text (payload) to Borgnix.com  
-<hr>
 ```javascript
 void BorgSimpleSend(String dataType, String payload);  
 ```
 BorgDevSend wrapper. BorgSimpleSend will format inputs and call BorgDevSend. eg.:  
 ```javascript
-ts=12345678 type=YOUR_DATA_TYPE payload=YOUR_PAYLOAD  
+ts=12345678,type=YOUR_DATA_TYPE,payload=YOUR_PAYLOAD
 ```
 ts(timestamp) is the result of millis() function.
-<hr>
 ```javascript
 void BorgTopicSend(String dataType, String payload);
 ```
-
-  
-  void process();
-  
-  int setInterval(BorgIntervalCB callback, int ms);
-  void clearInterval(int intervalNo);
-  int setTimeout(BorgIntervalCB callback, int ms, int lifeCycle);
-
-  void safeDelay(int ms);
-  void showFreeMemory();
+Another BorgDevSend wrapper. BorgTopicSend uses dataType to format MQTT topic. eg.:
+```javascript
+MQTT topic: /devices/YOUR_UUID/in/YOUR_DATA_TYPE
+Message: ts=12345678,type=YOUR_DATA_TYPE,payload=YOUR_PAYLOAD
+```
+<hr>
+###Job System
+```javascript
+void process();
+```
+process() should be called in loop().  
+Parses and processes received MQTT raw data in internal buffer. Maintains MQTT connection.  
+```javascript
+int setInterval(BorgIntervalCB callback, int ms);
+```
+```javascript
+void clearInterval(int intervalNo);
+```
+```javascript
+int setTimeout(BorgIntervalCB callback, int ms, int lifeCycle);
+```
+<hr>
+###Tools
+```javascript
+void safeDelay(int ms);
+```
+```javascript
+void showFreeMemory();
+```
