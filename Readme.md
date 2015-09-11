@@ -46,7 +46,7 @@ Message: ts=12345678,type=YOUR_DATA_TYPE,payload=YOUR_PAYLOAD
 ###Job System
 BorgnixAPI provides a bundle of APIs to control its job system.  
 Job system automatically manages user and internal jobs.  
-**Some of the internal jobs couldn't be blocked, so user code (not only use job) should use safeDelay() instead of delay().**  
+**Some of the internal jobs couldn't be blocked, so user code (not only user job) should use safeDelay() instead of delay().**  
 ```javascript
 void process();
 ```
